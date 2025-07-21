@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v3.4 # use the latest version
+    container_name: traefik
+    restart: always
+    command:
+      # HTTP and HTTPS Entrypoints
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      # Docker Provider Configuration
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false # Traefik only considers containers with specific labels
+      # Managing SSL Certificates with Let's Encrypt
+      - --certificatesresolvers.myresolver.acme.httpchallenge=true
+      - --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.myresolver.acme.email=jeremylanes17@gmail.com
+      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json # Certificate storage
+      # Activation of the Traefik dashboard (optional, useful for debugging)
+      - --api.dashboard=true
+      - --api.insecure=true # WARNING: For a PROD environment, disable this and secure the dashboard!
+    ports:
+      - "80:80"
+      - "443:443"
+      # Dashboard port (optional)
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro # Allows Traefik to communicate with Docker
+      - /opt/traefik/acme.json:/letsencrypt/acme.json # Persistent Volume for Let's Encrypt Certificates
+    networks:
+      - traefik_proxy # Connect Traefik to the shared network
+
+networks:
+  traefik_proxy:
+    name: traefik_proxy
