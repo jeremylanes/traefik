@@ -84,17 +84,32 @@ version: '3.8'
 
 services:
   my-app:
-    image: containous/whoami
+    image: containous/whoami # Or your application's image
     container_name: my-app
     networks:
-      - traefik_proxy # Connect to Traefik's network
+      - traefik_proxy # Connect to Traefik's external network
     labels:
+      # Enable Traefik for this service
       - "traefik.enable=true"
-      - "traefik.http.routers.my-app.rule=Host(`my-app.yourdomain.com`)" # Your application's domain
-      - "traefik.http.routers.my-app.entrypoints=websecure"
-      - "traefik.http.routers.my-app.tls.certresolver=myresolver" # Use Let's Encrypt
-      - "traefik.http.services.my-app.loadbalancer.server.port=80" # Port your application listens on
+
+      # HTTP Router: Redirects to HTTPS
+      - "traefik.http.routers.my-app-http.entrypoints=web"
+      - "traefik.http.routers.my-app-http.rule=Host(`my-app.yourdomain.com`)" # Replace with your application's domain
+      - "traefik.http.routers.my-app-http.middlewares=my-app-redirect-to-https@docker"
+
+      # HTTPS Router: Secure access with Let's Encrypt
+      - "traefik.http.routers.my-app-https.entrypoints=websecure"
+      - "traefik.http.routers.my-app-https.rule=Host(`my-app.yourdomain.com`)" # Replace with your application's domain
+      - "traefik.http.routers.my-app-https.tls=true"
+      - "traefik.http.routers.my-app-https.tls.certresolver=myresolver" # Use the Let's Encrypt resolver from Traefik
+
+      # Define the target service and its internal port
+      - "traefik.http.services.my-app-service.loadbalancer.server.port=80" # The port your application listens on internally
+
+      # Middleware for HTTP to HTTPS redirection
+      - "traefik.http.middlewares.my-app-redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.my-app-redirect-to-https.redirectscheme.permanent=true"
 
 networks:
   traefik_proxy:
-    external: true # Reference the external network created by Traefik
+    external: true # This refers to the network created by your main Traefik setup
