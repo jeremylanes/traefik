@@ -113,3 +113,60 @@ services:
 networks:
   traefik_proxy:
     external: true # This refers to the network created by your main Traefik setup
+```
+
+Absolument ! Voici la section complète, mise en forme en Markdown :
+
+---
+
+## Key Features
+
+* **Automatic HTTPS**: Traefik automatically obtains and renews SSL certificates from Let's Encrypt for your services.
+* **Docker Integration**: Automatically discovers and configures routes for your Docker containers based on labels.
+* **Dashboard**: A web UI for monitoring and managing your Traefik instance.
+* **Basic Authentication**: Secure your Traefik dashboard with a username and password.
+
+---
+
+## Configuration Details
+
+### `docker-compose.yml`
+
+#### `traefik` service:
+
+* Uses `traefik:v3.4` image.
+* Exposes ports **80** (HTTP) and **443** (HTTPS).
+* Mounts `/var/run/docker.sock` for Docker integration.
+* Mounts `/opt/traefik/acme.json` for persistent storage of Let's Encrypt certificates.
+* Configures HTTP (`web`) and HTTPS (`websecure`) entrypoints.
+* Enables the Docker provider, exposing services only if explicitly labeled.
+* Configures `myresolver` for Let's Encrypt using HTTP challenge.
+* Enables the API dashboard (accessible via a secure router).
+* Sets up a router for the dashboard (`traefik-dashboard`) accessible via the `TRAEFIK_DASHBOARD_HOST` environment variable.
+* Applies `dashboard-auth` middleware for basic authentication using credentials from the `.env` file.
+
+### `.env` file
+
+* **`DASHBOARD_USERNAME`**: Username for dashboard basic authentication.
+* **`DASHBOARD_PASSWORD_HASH`**: Hashed password for dashboard basic authentication (remember to escape `$` with `$$`).
+* **`TRAEFIK_DASHBOARD_HOST`**: The hostname you'll use to access the Traefik dashboard.
+
+---
+
+## Troubleshooting
+
+### Dashboard Not Accessible:
+
+* Check your `.env` file for correct `TRAEFIK_DASHBOARD_HOST` and `DASHBOARD_USERNAME`/`DASHBOARD_PASSWORD_HASH`.
+* Ensure the `traefik_proxy` network is correctly created and connected.
+* Verify DNS resolution for `TRAEFIK_DASHBOARD_HOST`.
+* Check Traefik logs: `docker logs traefik`.
+
+### SSL Certificate Issues:
+
+* Ensure port 80 is accessible externally for Let's Encrypt HTTP challenges.
+* Check permissions and existence of `/opt/traefik/acme.json`. It should be `chmod 600`.
+* Verify the email address configured for Let's Encrypt is valid.
+* Review Traefik logs for ACME resolver errors.
+
+---
