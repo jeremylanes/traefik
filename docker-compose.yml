@@ -36,14 +36,14 @@ services:
     labels:
       - "traefik.enable=true" # Activate Traefik for this service (the dashboard itself)
       # Router for dashboard
-      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.tune.local`)" # Remplacez par votre sous-domaine pour le dashboard
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`${TRAEFIK_DASHBOARD_HOST}`)"
       - "traefik.http.routers.traefik-dashboard.entrypoints=websecure" # Access via HTTPS
       - "traefik.http.routers.traefik-dashboard.service=api@internal" # Traefik Internal Service
       - "traefik.http.routers.traefik-dashboard.middlewares=dashboard-auth" # Applies authentication middleware
       - "traefik.http.routers.traefik-dashboard.tls.certresolver=myresolver" # Use Let's Encrypt
 
       # Basic authentication middleware (Basic Auth)
-      - "traefik.http.middlewares.dashboard-auth.basicauth.users=lane:$$apr1$$nSIR3PCw$$QAv6OwMGxOOzsn2o5UOHr0" # <<< Collez votre chaîne hachée ici
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=${DASHBOARD_USERNAME}:${DASHBOARD_PASSWORD_HASH}"
       # Remember to escape '$' with '$$' in Docker Compose labels
 networks:
   traefik_proxy:
