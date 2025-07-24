@@ -19,18 +19,32 @@ services:
       - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json # Certificate storage
       # Activation of the Traefik dashboard (optional, useful for debugging)
       - --api.dashboard=true
-      - --api.insecure=true # WARNING: For a PROD environment, disable this and secure the dashboard!
+      - --api.insecure=false # <<< TRÈS IMPORTANT : Désactivé pour la sécurité !
     ports:
       - "80:80"
       - "443:443"
-      # Dashboard port (optional)
-      - "8080:8080"
+      # Le port 8080 n'est plus nécessaire si vous accédez au dashboard via un sous-domaine
+      # comme recommandé pour la sécurité et l'intégration HTTPS.
+      # Si vous tenez absolument à l'exposer sur un port direct (moins recommandé en prod),
+      # vous devriez au minimum le protéger avec des règles de pare-feu.
+      # - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro # Allows Traefik to communicate with Docker
       - /opt/traefik/acme.json:/letsencrypt/acme.json # Persistent Volume for Let's Encrypt Certificates
     networks:
       - traefik_proxy # Connect Traefik to the shared network
+    labels: # <<< NOUVEAUX LABELS POUR LE TABLEAU DE BORD ET LA SÉCURITÉ
+      - "traefik.enable=true" # Active Traefik pour ce service (le dashboard lui-même)
+      # Routeur pour le tableau de bord
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.tune.local`)" # Remplacez par votre sous-domaine pour le dashboard
+      - "traefik.http.routers.traefik-dashboard.entrypoints=websecure" # Accès via HTTPS
+      - "traefik.http.routers.traefik-dashboard.service=api@internal" # Service interne de Traefik
+      - "traefik.http.routers.traefik-dashboard.middlewares=dashboard-auth" # Applique le middleware d'authentification
+      - "traefik.http.routers.traefik-dashboard.tls.certresolver=myresolver" # Utilise Let's Encrypt
 
+      # Middleware d'authentification de base (Basic Auth)
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=lane:$$apr1$$nSIR3PCw$$QAv6OwMGxOOzsn2o5UOHr0" # <<< Collez votre chaîne hachée ici
+      # N'oubliez pas d'échapper les '$' avec '$$' dans les labels Docker Compose
 networks:
   traefik_proxy:
     name: traefik_proxy
