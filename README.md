@@ -46,7 +46,8 @@ Before you begin, ensure you have the following installed:
     ```ini
     DASHBOARD_USERNAME=lane
     DASHBOARD_PASSWORD_HASH=$$apr1$$nSIR3PCw$$QAv6OwMGxOOzsn2o5UOHr0
-    TRAEFIK_DASHBOARD_HOST=traefik.tune.local
+    TRAEFIK_DASHBOARD_HOST=traefik.local
+    LETSENCRYPT_EMAIL=email@exemple.com
     ```
 
     **Note:** For `TRAEFIK_DASHBOARD_HOST`, ensure `traefik.tune.local` (or your chosen hostname) resolves to your Docker host's IP address. For local testing, you might need to add an entry to your `/etc/hosts` file (or equivalent on Windows).
