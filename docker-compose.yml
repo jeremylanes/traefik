@@ -41,6 +41,16 @@ services:
       - "traefik.http.routers.traefik-dashboard.service=api@internal" # Traefik Internal Service
       - "traefik.http.routers.traefik-dashboard.middlewares=dashboard-auth" # Applies authentication middleware
       - "traefik.http.routers.traefik-dashboard.tls.certresolver=myresolver" # Use Let's Encrypt
+      ##
+      # Router for dashboard (HTTP - Redirection to HTTPS)
+      - "traefik.http.routers.traefik-dashboard-http.rule=Host(`${TRAEFIK_DASHBOARD_HOST}`)"
+      - "traefik.http.routers.traefik-dashboard-http.entrypoints=web" # Listen on HTTP entrypoint
+      - "traefik.http.routers.traefik-dashboard-http.middlewares=redirect-to-https" # Apply redirection middleware
+
+      # Middleware to redirect HTTP to HTTPS
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+      ##
 
       # Basic authentication middleware (Basic Auth)
       - "traefik.http.middlewares.dashboard-auth.basicauth.users=${DASHBOARD_USERNAME}:${DASHBOARD_PASSWORD_HASH}"
