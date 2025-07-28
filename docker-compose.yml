@@ -20,6 +20,9 @@ services:
       # Activation of the Traefik dashboard (optional, useful for debugging)
       - --api.dashboard=true
       - --api.insecure=false
+      # Logging
+      - -log.level=DEBUG
+      - -accesslog=true
     ports:
       - "80:80"
       - "443:443"
