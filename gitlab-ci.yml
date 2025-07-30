@@ -1,0 +1,31 @@
+stages:
+  - deploy_test
+  - deploy_prod
+
+variables:
+  COMPOSE_FILE: docker-compose.yml
+
+before_script:
+  - cd /opt/traefik
+  - git pull origin $CI_COMMIT_REF_NAME
+
+# Step 1: Deploy to a test server (on 'develop' or 'main')
+deploy_to_test:
+  stage: deploy_test
+  script:
+    - sudo systemctl restart traefik
+  only:
+    - develop
+    # - main
+  tags:
+    - vps-test
+
+# Step 2: Deployment to a production server (only 'main')
+deploy_to_prod:
+  stage: deploy_prod
+  script:
+    - sudo systemctl restart traefik
+  only:
+    - main
+  tags:
+    - vps-prod
