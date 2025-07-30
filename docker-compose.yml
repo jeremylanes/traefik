@@ -2,7 +2,7 @@ services:
   traefik:
     image: traefik:v3.5 # use the latest version
     container_name: traefik
-    restart: always
+    restart: unless-stopped # always
     command:
       # HTTP and HTTPS Entrypoints
       - --entrypoints.web.address=:80
