@@ -52,38 +52,20 @@ services:
       - "--accesslog=true"
       # - "--metrics.prometheus=true"
     labels:
+      # Enable self‑routing for Traefik service
+      - "traefik.enable=true"
 
       # Router for dashboard
-
-      - "traefik.http.routers.dashboard.middlewares=dashboard-auth" # Applies authentication middleware
-      - "traefik.http.routers.dashboard.tls.certresolver=myresolver" # Use Let's Encrypt
-      ##
-      # Router for dashboard (HTTP - Redirection to HTTPS)
-      - "traefik.http.routers.dashboard-http.rule=Host(`${TRAEFIK_DASHBOARD_HOST}`)"
-      # - "traefik.http.routers.dashboard-http.entrypoints=web" # Listen on HTTP entrypoint
-      # - "traefik.http.routers.dashboard-http.middlewares=redirect-to-https" # Apply redirection middleware
-
-      # Middleware to redirect HTTP to HTTPS
-      # - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-      # - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
-      ##
-
-      # Basic authentication middleware (Basic Auth)
-
-      # Remember to escape '$' with '$$' in Docker Compose labels
-
-      # -------------------
-      # Enable self‑routing
-      - "traefik.enable=true" # Activate Traefik for this service (the dashboard itself)
-      # Dashboard router
       - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DASHBOARD_HOST}`)"
-      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.entrypoints=websecure" # Le tableau de bord écoute directement sur HTTPS
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=myresolver" # Utilise Let's Encrypt
 
       # Basic‑auth middleware
       - "traefik.http.middlewares.dashboard-auth.basicauth.users=${DASHBOARD_USERNAME}:${DASHBOARD_PASSWORD_HASH}"
       - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
+      # - "traefik.http.routers.dashboard.middlewares=dashboard-auth" # Applique l'authentification
 networks:
   traefik_proxy:
     name: traefik_proxy
