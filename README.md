@@ -27,8 +27,8 @@ Before you begin, ensure you have the following installed:
 
     Replace `yourusername` and `yourpassword` with your desired credentials. The `htpasswd` command will output a string like `yourusername:$$apr1$$nSIR3PCw$$QAv6OwMGxOOzsn2o5UOHr0`.
 
-    ```bash
-    htpasswd -nb yourusername yourpassword
+    ```bash  
+    htpasswd -nb yourusername "yourpassword" | sed -e 's/\$/\$\$/g'
     ```
 
 3.  **Create a `.env` file:**
@@ -37,7 +37,7 @@ Before you begin, ensure you have the following installed:
 
     ```ini
     DASHBOARD_USERNAME=yourusername
-    DASHBOARD_PASSWORD_HASH=$$apr1$$nSIR3PCw$$QAv6OwMGxOOzsn2o5UOHr0 # Example: replace with your generated hash, escaping '$'
+    DASHBOARD_PASSWORD_HASH=$$apr1$$nSIR3PCw$$QAv6OwMGxOOzsn2o5UOHr0 # Example: replace with your generated hash
     TRAEFIK_DASHBOARD_HOST=traefik.yourdomain.com # Replace with your desired dashboard hostname
     ```
 
