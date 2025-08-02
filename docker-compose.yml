@@ -71,7 +71,7 @@ services:
       # Router de redirection pour le tableau de bord (www vers non-www)
       - "traefik.http.routers.dashboard-www.rule=Host(`www.${TRAEFIK_DASHBOARD_HOST}`)"
       - "traefik.http.routers.dashboard-www.entrypoints=websecure"
-      - "traefik.http.routers.dashboard-www.tls=true"
+      # - "traefik.http.routers.dashboard-www.tls=true"
       - "traefik.http.routers.dashboard-www.tls.certresolver=myresolver"
       - "traefik.http.routers.dashboard-www.middlewares=www-redirect@docker"
 
