@@ -47,8 +47,8 @@ services:
       - "--api.insecure=false"
 
       # Observability
-      # - "--log.level=DEBUG"
-      - "--log.level=INFO"
+      - "--log.level=DEBUG"
+      # - "--log.level=INFO"
       - "--accesslog=true"
       # - "--metrics.prometheus=true"
     labels:
@@ -66,6 +66,19 @@ services:
       - "traefik.http.middlewares.dashboard-auth.basicauth.users=${DASHBOARD_USERNAME}:${DASHBOARD_PASSWORD_HASH}"
       - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
       # - "traefik.http.routers.dashboard.middlewares=dashboard-auth" # Applique l'authentification
+
+      # ------ ------ ------ ------ ------ ------
+      # Router de redirection pour le tableau de bord (www vers non-www)
+      - "traefik.http.routers.dashboard-www.rule=Host(`www.${TRAEFIK_DASHBOARD_HOST}`)"
+      - "traefik.http.routers.dashboard-www.entrypoints=websecure"
+      - "traefik.http.routers.dashboard-www.tls=true"
+      - "traefik.http.routers.dashboard-www.tls.certresolver=myresolver"
+      - "traefik.http.routers.dashboard-www.middlewares=www-redirect@docker"
+
+      # Redirection Middleware
+      - "traefik.http.middlewares.www-redirect.redirectregex.regex=^https://www\\.(.*)"
+      - "traefik.http.middlewares.www-redirect.redirectregex.replacement=https://$${1}"
+      - "traefik.http.middlewares.www-redirect.redirectregex.permanent=true"
 networks:
   traefik_proxy:
     name: traefik_proxy
