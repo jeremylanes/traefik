@@ -5,6 +5,7 @@ services:
     restart: unless-stopped # always
     security_opt:
       - no-new-privileges:true
+      - label:disable  # Modify this if you're security paranoid.
 
     ports:
       - "80:80"
